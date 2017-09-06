@@ -1,9 +1,9 @@
-xls = xlsread('data.xls');
+xls = xlsread('data.xlsx');
 
 time = 1:399;
 real_time = 1979 + time/12; 
 
-data = xls(time,1:22);
+data = xls(time,2:23);
 
 oil = data(:,1);
 gold = data(:,2);
@@ -56,22 +56,44 @@ for i = 1:goods_count
     percent_std_(i) = 100*std_(i)/mean_(i);
 end
 
-figure;
+%figure;
 
-plot(real_time, all_goods_norm');
-axis([real_time(1) real_time(end) 0.0 5.0]);
+%plot(real_time, all_goods_norm');
+%axis([real_time(1) real_time(end) 0.0 5.0]);
 
-A = cov(all_goods_rel);
+% В идеале, оба методы должны давать одинаковый результат
+% Но в связи с тем, что в матрице A_norm значения имеют одинаковый порядок
+% А в матрице A_rel порядки значений могут сильно различаться
+% А также в связи с тем, что точность вычисления в матлабе ограничена
+% Результат метода с A_rel более точный
+% На некоторых наборах из-за погрешности вычислений с A_norm
+% Компоненты вектора x могут принимать отрицательные значения
+% И соответствующие им товары не попадают в ДП
+% В методе с A_norm такого быть не должно
+
+A_rel = cov(all_goods_rel);
+A_norm = cov(all_goods_norm);
 
 cond = ones(1, goods_count);
 
-B = [2*A cond'];
-B = [B; [cond 0]];
+B_rel = [2*A_rel cond'];
+B_rel = [B_rel; [cond 0]];
+
+B_norm = [2*A_norm cond'];
+B_norm = [B_norm; [cond 0]];
 
 b = [zeros(1, goods_count) 1]';
-x = (B^-1)*b;
+x_rel = (B_rel^-1)*b;
+x_norm = (B_norm^-1)*b;
 
-DP = all_goods_rel*x(1:goods_count);
+x_rel = x_rel(1:goods_count);
+x_norm = x_norm(1:goods_count);
+x_norm = x_norm./mean_';
+x_norm = x_norm/sum(x_norm);
+
+x = x_norm;
+
+DP = all_goods_rel*x;
 
 figure;
 
@@ -83,12 +105,21 @@ DP_mean = mean(DP)
 DP_std = std(DP)
 DP_percent_std = 100*std(DP)/mean(DP)
 
-USD_per_DP = all_goods*x(1:goods_count);
+USD_per_DP_norm_ = all_goods*x_norm;
+USD_per_DP_rel_ = all_goods*x_rel;
+
+USD_per_DP = all_goods*x;
 
 subplot(2,1,2);
 plot(real_time, USD_per_DP);
 
-debt_xls = xlsread('usa_debt.xls');
+% Критерий. Цена ДП должна достаточно точно аппроксимировать среднее геометрическое всех цен: 
+figure;
+plot(real_time, [geom_average/geom_average(1) USD_per_DP_norm_/USD_per_DP_norm_(1) USD_per_DP_rel_/USD_per_DP_rel_(1)]);
+
+return;
+
+debt_xls = xlsread('usa_debt.xlsx');
 
 debt_time = debt_xls(:,1);
 end_index = size(debt_time,1);
@@ -98,7 +129,7 @@ debt_time = debt_time(start_index:end_index);
 debt_usd = debt_xls(start_index:end_index,2);
 debt_percent = debt_xls(start_index:end_index,3);
 
-debt_time = debt_time + 1; % ������ � ����� ���� �� ����� ����, ��� ����������� ������ ����������
+debt_time = debt_time + 1; % данные о долге даны на конец года, что равносильно началу следующего
 
 figure;
 subplot(2,1,1);

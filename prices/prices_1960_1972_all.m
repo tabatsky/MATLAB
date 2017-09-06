@@ -4,8 +4,8 @@
 [f_m_rel, f_m_norm, f_m_mean, f_m_std, f_m_percent_std] = calc_relatives(f_m, time);
 [foods_rel, foods_norm, foods_mean, foods_std, foods_percent_std] = calc_relatives(foods, time);
 
-f_m_xx = calc_DP(f_m_rel);
-foods_xx = calc_DP(foods_rel);
+[f_m_xx, f_m_A] = calc_DP(f_m_rel);
+[foods_xx, foods_A] = calc_DP(foods_rel);
 
 f_m_res = print_DP(f_m_xx, f_m_names, f_m_coefs, f_m_coef_units);
 foods_res = print_DP(foods_xx, foods_names, foods_coefs, foods_coef_units);
@@ -31,10 +31,12 @@ f_m_per_foods = USD_per_foods_DP./USD_per_f_m_DP;
 figure;
 subplot(2,1,1);
 plot(real_time, [USD_per_f_m_DP USD_per_foods_DP]);
-title('ÄÏ1, ÄÏ2');
+title('Ğ”ĞŸ1, Ğ”ĞŸ2');
 subplot(2,1,2);
 plot(real_time, f_m_per_foods);
-title('ÄÏ2/ÄÏ1');
+title('Ğ”ĞŸ1/Ğ”ĞŸ2');
+
+return;
 
 realty = xlsread('realty.xls');
 r_time = 123:3:651;
@@ -43,10 +45,10 @@ f_m_per_realty = (realty/mean(realty))./USD_per_f_m_DP(r_time);
 figure;
 subplot(2,1,1);
 plot(real_time(r_time),[USD_per_f_m_DP(r_time) realty/mean(realty)]);
-title('ÄÏ1, Íåäâèæèìîñòü');
+title('Ğ”ĞŸ1, ĞĞµĞ´Ğ²Ğ¸Ğ´Ğ¸Ğ¼Ğ¾ÑÑ‚ÑŒ');
 subplot(2,1,2);
 plot(real_time(r_time), f_m_per_realty);
-title('Íåäâèæèìîñòü/ÄÏ1');
+title('ĞĞµĞ´Ğ²Ğ¸Ğ¶Ğ¸Ğ¼Ğ¾ÑÑ‚ÑŒ/Ğ”ĞŸ1');
 
 [nasdaq nasdaq_names nasdaq_time nasdaq_real_time] = load_nasdaq;
 [nasdaq_rel, nasdaq_norm, nasdaq_mean, nasdaq_std, nasdaq_percent_std] = calc_relatives(nasdaq, nasdaq_time);
@@ -66,10 +68,10 @@ f_m_interp = interp1(real_time, USD_per_f_m_DP, nasdaq_real_time, 'cubic')';
 figure;
 subplot(2,1,1);
 plot(nasdaq_real_time, [f_m_interp/mean(f_m_interp) USD_per_nasdaq_DP]);
-title('ÄÏ1, ÄÏ-HiTech');
+title('Ğ”ĞŸ1, Ğ”ĞŸ-HiTech');
 subplot(2,1,2);
 plot(nasdaq_real_time, USD_per_nasdaq_DP./f_m_interp);
-title('ÄÏ-HiTech/ÄÏ1');
+title('Ğ”ĞŸ-HiTech/Ğ”ĞŸ1');
 
 m1_m2_xls = xlsread('m1_m2.xls');
 m1 = m1_m2_xls(:,3);
@@ -79,10 +81,10 @@ cpi = m1_m2_xls(:,5);
 figure;
 subplot(2,1,1);
 plot(real_time, [USD_per_f_m_DP/mean(USD_per_f_m_DP) m1/mean(m1)]);
-title('ÄÏ1,M1');
+title('Ğ”ĞŸ1,M1');
 subplot(2,1,2);
 plot(real_time, [USD_per_f_m_DP/mean(USD_per_f_m_DP) m2/mean(m2)]);
-title('ÄÏ1,M2');
+title('Ğ”ĞŸ1,M2');
 
 DP_m1_corr = corr2(USD_per_f_m_DP, m1)
 DP_m2_corr = corr2(USD_per_f_m_DP, m2)

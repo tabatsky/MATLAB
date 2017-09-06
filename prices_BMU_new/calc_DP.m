@@ -1,7 +1,9 @@
 function [xx, A] = calc_DP(all_goods_rel)
-    goods_count = size(all_goods_rel, 2);
+    goods_count = size(all_goods_rel, 2)
 
     A = cov(all_goods_rel);
+    
+    %AA = A(1:3,1:3)
 
     cond = ones(1, goods_count);
 
