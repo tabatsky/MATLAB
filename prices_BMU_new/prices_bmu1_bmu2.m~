@@ -10,16 +10,6 @@ bmu0_coef_units = [bmu1_coef_units bmu2_coef_units];
 [bmu2_rel, bmu2_norm, bmu2_mean, bmu2_std, bmu2_percent_std, bmu2_geom] = calc_relatives(bmu2_prices, time);
 [bmu0_rel, bmu0_norm, bmu0_mean, bmu0_std, bmu0_percent_std, bmu0_geom] = calc_relatives(bmu0_prices, time);
 
-% В идеале, оба метода должны давать одинаковый результат
-% Но в связи с тем, что в матрице A_norm значения имеют одинаковый порядок
-% А в матрице A_rel порядки значений могут сильно различаться
-% А также в связи с тем, что точность вычислений в матлабе ограничена
-% Результат метода с A_norm более точный
-% На некоторых наборах данных из-за погрешности вычислений с A_rel
-% Компоненты вектора x могут принимать отрицательные значения
-% И соответствующие им товары не попадают в ДП
-% В методе с A_norm такого быть не должно
-
 [bmu1_xx_norm, bmu1_A_norm] = calc_DP(bmu1_norm);
 bmu1_xx_norm = bmu1_xx_norm ./ bmu1_mean';
 bmu1_xx_norm = bmu1_xx_norm / sum(bmu1_xx_norm);
